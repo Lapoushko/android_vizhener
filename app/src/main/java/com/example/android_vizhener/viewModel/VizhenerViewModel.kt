@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.android_vizhener.calculate.CreateSheet
 import com.example.android_vizhener.calculate.Decryptor
 import com.example.android_vizhener.calculate.Encryptor
+import com.example.android_vizhener.mapper.CryptMapper
 import com.example.android_vizhener.mapper.KeyMapper
 import com.example.android_vizhener.mapper.MessageMapper
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,7 @@ class VizhenerViewModel() : ViewModel() {
     private val createSheet = CreateSheet()
     private val keyMapper = KeyMapper()
     private val messageMapper = MessageMapper()
+    private val cryptMapper = CryptMapper()
 
     private val sheet = createSheet.create()
 
@@ -51,10 +53,12 @@ class VizhenerViewModel() : ViewModel() {
     }
 
     fun encrypt() {
-        _cypher.value = encryptor.encrypt(message = message.value, key = key.value)
+        _cypher.value =
+            cryptMapper.mapper(encryptor.encrypt(message = message.value, key = key.value))
     }
 
-    fun decrypt(){
-        _cypher.value = decryptor.decrypt(crypt = message.value, key = key.value)
+    fun decrypt() {
+        _cypher.value =
+            cryptMapper.mapper(decryptor.decrypt(crypt = message.value, key = key.value))
     }
 }
