@@ -1,11 +1,13 @@
 package com.example.android_vizhener.calculate
 
+import com.example.android_vizhener.util.Constants
+
 /**
  * @author Lapoushko
  */
 class CreateSheet {
-    val alph: List<Char> =
-        "ёйцукенгшщзхъэждлорпавыфячсмитьбю".uppercase().replace("Ё", "").toList().sorted()
+    private val alph: List<Char> =
+        Constants.alph.uppercase().toList().sorted()
 
     fun create(): Map<Char, List<Char>> {
         return HashMap<Char, List<Char>>().apply {
