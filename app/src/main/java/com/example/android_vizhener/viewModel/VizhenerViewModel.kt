@@ -10,6 +10,7 @@ import com.example.android_vizhener.calculate.Encryptor
 import com.example.android_vizhener.mapper.CryptMapper
 import com.example.android_vizhener.mapper.KeyMapper
 import com.example.android_vizhener.mapper.MessageMapper
+import com.example.android_vizhener.mapper.util.TextValidator
 import com.example.android_vizhener.state.Input
 import com.example.android_vizhener.state.MainScreenState
 
@@ -23,6 +24,7 @@ class VizhenerViewModel : ViewModel() {
     private val messageMapper = MessageMapper()
     private val cryptMapper = CryptMapper()
     private val sheet = createSheet.create()
+    private val validator = TextValidator()
 
     private val errors: MutableSet<Errors> = Errors.entries.toMutableSet()
 
@@ -45,7 +47,7 @@ class VizhenerViewModel : ViewModel() {
         _state.message = checkErrorInput(
             input = it,
             error = Errors.MESSAGE_ERROR,
-            (messageMapper.invoke(it).isNotEmpty())
+            (validator.validate(it).isNotEmpty())
         )
     }
 
@@ -53,7 +55,7 @@ class VizhenerViewModel : ViewModel() {
         _state.key = checkErrorInput(
             input = it,
             error = Errors.KEY_ERROR,
-            (keyMapper.validate(it).isNotEmpty())
+            (validator.validate(it).isNotEmpty())
         )
     }
 

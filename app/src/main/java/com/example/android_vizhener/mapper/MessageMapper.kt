@@ -1,13 +1,14 @@
 package com.example.android_vizhener.mapper
 
+import com.example.android_vizhener.mapper.util.TextValidator
+
 /**
  * @author Lapoushko
  */
 class MessageMapper {
+    private val validator = TextValidator()
+
     fun invoke(message: String): String {
-        return message
-            .uppercase()
-            .replace(Regex("[^А-Яа-яЁё]"), "")
-            .replace(Regex("[Ёё]"), "")
+        return validator.validate(message)
     }
 }
