@@ -9,17 +9,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -37,9 +37,7 @@ import com.example.android_vizhener.viewModel.VizhenerViewModel
 @Composable
 fun MainScreen(viewModel: VizhenerViewModel) {
 
-    val message by viewModel.message.collectAsState()
-    val key by viewModel.key.collectAsState()
-    val cypher by viewModel.cypher.collectAsState()
+    val state = viewModel.state
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -50,38 +48,56 @@ fun MainScreen(viewModel: VizhenerViewModel) {
         }
     ) { innerPadding ->
         Column(
-            Modifier.padding(innerPadding).verticalScroll(rememberScrollState())
+            Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
         ) {
             TextFieldOption(
-                text = message,
+                text = state.message.text,
                 onTextChange = {
                     viewModel.updateMessage(it)
                 },
-                label = "Ваш текст"
+                label = "Ваш текст",
+                trailingImage = Icons.Outlined.Clear,
+                onClickTrailing = {
+                    viewModel.updateMessage("")
+                },
+                error = state.message.error?.naming ?: ""
             )
 
             TextFieldOption(
-                text = key,
+                text = state.key.text,
                 onTextChange = {
                     viewModel.updateKey(it)
                 },
-                label = "Ваш ключ"
+                label = "Ваш ключ",
+                trailingImage = Icons.Outlined.Clear,
+                onClickTrailing = {
+                    viewModel.updateKey("")
+                },
+                error = state.key.error?.naming ?: ""
             )
 
             Button(onClick = {
                 viewModel.encrypt()
-            }, modifier = Modifier.fillMaxWidth().padding(horizontal = 50.dp) ) {
+            }, modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 50.dp)) {
                 Text(text = "Зашифровать")
             }
 
             Button(onClick = {
                 viewModel.decrypt()
-            }, modifier = Modifier.fillMaxWidth().padding(horizontal = 50.dp) ) {
+            }, modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 50.dp)) {
                 Text(text = "Расшифровать")
             }
-            Text(modifier = Modifier
-                .padding(horizontal = 10.dp),
-                text = cypher)
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 10.dp),
+                text = state.cypher
+            )
         }
     }
 }
@@ -92,7 +108,10 @@ fun TextFieldOption(
     onTextChange: (String) -> Unit,
     imageVector: ImageVector = Icons.Outlined.Edit,
     keyboardType: KeyboardType = KeyboardType.Text,
-    label: String
+    label: String,
+    trailingImage: ImageVector? = null,
+    onClickTrailing: () -> Unit = {},
+    error: String = "",
 ) {
     TextField(modifier = Modifier
         .fillMaxWidth()
@@ -112,12 +131,32 @@ fun TextFieldOption(
             Icon(
                 imageVector = imageVector, contentDescription = null
             )
+        },
+        isError = error != "",
+        supportingText = {
+            if (error != "") {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = error,
+                )
+            }
+        },
+        trailingIcon = {
+            if (trailingImage != null) {
+                IconButton(
+                    onClick = onClickTrailing
+                ) {
+                    Icon(
+                        imageVector = trailingImage, contentDescription = null
+                    )
+                }
+            }
         }
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun MainScreenPreview(){
+fun MainScreenPreview() {
     MainScreen(viewModel = VizhenerViewModel())
 }

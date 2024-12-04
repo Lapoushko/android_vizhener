@@ -1,5 +1,8 @@
 package com.example.android_vizhener.viewModel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.android_vizhener.calculate.CreateSheet
 import com.example.android_vizhener.calculate.Decryptor
@@ -7,21 +10,21 @@ import com.example.android_vizhener.calculate.Encryptor
 import com.example.android_vizhener.mapper.CryptMapper
 import com.example.android_vizhener.mapper.KeyMapper
 import com.example.android_vizhener.mapper.MessageMapper
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.example.android_vizhener.state.Input
+import com.example.android_vizhener.state.MainScreenState
 
 /**
  * @author Lapoushko
  */
-class VizhenerViewModel() : ViewModel() {
+class VizhenerViewModel : ViewModel() {
 
     private val createSheet = CreateSheet()
     private val keyMapper = KeyMapper()
     private val messageMapper = MessageMapper()
     private val cryptMapper = CryptMapper()
-
     private val sheet = createSheet.create()
+
+    private val errors: MutableSet<Errors> = Errors.entries.toMutableSet()
 
     private val encryptor: Encryptor = Encryptor(
         sheet = sheet,
@@ -35,30 +38,62 @@ class VizhenerViewModel() : ViewModel() {
         keyMapper = keyMapper
     )
 
-    private val _message: MutableStateFlow<String> = MutableStateFlow("")
-    val message: StateFlow<String> = _message.asStateFlow()
-
-    private val _key: MutableStateFlow<String> = MutableStateFlow("")
-    val key: StateFlow<String> = _key.asStateFlow()
-
-    private val _cypher: MutableStateFlow<String> = MutableStateFlow("")
-    val cypher: StateFlow<String> = _cypher.asStateFlow()
+    private var _state = MutableMainScreenState()
+    val state = _state as MainScreenState
 
     fun updateMessage(it: String) {
-        _message.value = it
+        _state.message = checkErrorInput(
+            input = it,
+            error = Errors.MESSAGE_ERROR,
+            (it.isNotEmpty())
+        )
     }
 
     fun updateKey(it: String) {
-        _key.value = it
+        _state.key = checkErrorInput(
+            input = it,
+            error = Errors.KEY_ERROR,
+            (it.isNotEmpty())
+        )
     }
 
     fun encrypt() {
-        _cypher.value =
-            cryptMapper.mapper(encryptor.encrypt(message = message.value, key = key.value))
+        if (errors.isEmpty()) {
+            _state.cypher =
+                cryptMapper.mapper(encryptor.encrypt(message = state.message.text, key = state.key.text))
+        }
     }
 
     fun decrypt() {
-        _cypher.value =
-            cryptMapper.mapper(decryptor.decrypt(crypt = message.value, key = key.value))
+        if (errors.isEmpty()) {
+            _state.cypher =
+                cryptMapper.mapper(decryptor.decrypt(crypt = state.message.text, key = state.key.text))
+        }
+    }
+
+    private fun checkErrorInput(
+        input: String,
+        error: Errors,
+        isCorrect: Boolean,
+    ): Input {
+        if (isCorrect) {
+            errors.remove(error)
+            return Input(text = input, error = null)
+        } else {
+            errors.add(error)
+            return Input(text = input, error = error)
+        }
+    }
+
+    private class MutableMainScreenState : MainScreenState {
+        override var message: Input by mutableStateOf(Input("", Errors.MESSAGE_ERROR))
+        override var key: Input by mutableStateOf(Input("", Errors.KEY_ERROR))
+        override var cypher: String by mutableStateOf("")
     }
 }
+
+enum class Errors(val naming: String){
+    MESSAGE_ERROR("Неправильное сообщение"),
+    KEY_ERROR("Неправильный ключ")
+}
+
