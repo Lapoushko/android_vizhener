@@ -1,7 +1,7 @@
 package com.example.android_vizhener.mapper
 
 class CryptMapper {
-    fun mapper(crypt: String): String{
+    fun invoke(crypt: String): String{
         val result = StringBuilder()
 
         crypt.forEachIndexed { index, char ->

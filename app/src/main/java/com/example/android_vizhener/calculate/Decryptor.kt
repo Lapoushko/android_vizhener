@@ -13,8 +13,8 @@ class Decryptor(
 ){
     fun decrypt(crypt: String, key: String) : String{
         var res = ""
-        val newKey = keyMapper.mapper(message = crypt, key = key)
-        val newCrypt = messageMapper.mapper(crypt)
+        val newKey = keyMapper.invoke(message = crypt, key = key)
+        val newCrypt = messageMapper.invoke(crypt)
         val header = sheet.values.toList()[0]
         for (index in newCrypt.toList().indices){
             res += header[sheet[newKey[index]]?.indexOf(newCrypt[index]) ?: 0]

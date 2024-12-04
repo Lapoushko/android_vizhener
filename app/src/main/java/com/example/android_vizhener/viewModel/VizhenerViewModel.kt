@@ -45,7 +45,7 @@ class VizhenerViewModel : ViewModel() {
         _state.message = checkErrorInput(
             input = it,
             error = Errors.MESSAGE_ERROR,
-            (it.isNotEmpty())
+            (messageMapper.invoke(it).isNotEmpty())
         )
     }
 
@@ -53,21 +53,21 @@ class VizhenerViewModel : ViewModel() {
         _state.key = checkErrorInput(
             input = it,
             error = Errors.KEY_ERROR,
-            (it.isNotEmpty())
+            (keyMapper.validate(it).isNotEmpty())
         )
     }
 
     fun encrypt() {
         if (errors.isEmpty()) {
             _state.cypher =
-                cryptMapper.mapper(encryptor.encrypt(message = state.message.text, key = state.key.text))
+                cryptMapper.invoke(encryptor.encrypt(message = state.message.text, key = state.key.text))
         }
     }
 
     fun decrypt() {
         if (errors.isEmpty()) {
             _state.cypher =
-                cryptMapper.mapper(decryptor.decrypt(crypt = state.message.text, key = state.key.text))
+                cryptMapper.invoke(decryptor.decrypt(crypt = state.message.text, key = state.key.text))
         }
     }
 

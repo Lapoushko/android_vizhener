@@ -13,8 +13,8 @@ class Encryptor(
 ) {
     fun encrypt(message: String, key: String): String {
         var res = ""
-        val newKey = keyMapper.mapper(message = message, key = key)
-        val newMessage = messageMapper.mapper(message)
+        val newKey = keyMapper.invoke(message = message, key = key)
+        val newMessage = messageMapper.invoke(message)
         val header = sheet.values.toList()[0]
         for (index in newMessage.toList().indices) {
             res += sheet[newKey[index]]?.get(header.indexOf(newMessage[index]))
