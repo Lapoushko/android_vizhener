@@ -8,7 +8,10 @@ import com.example.android_vizhener.util.Constants
 class TextValidator {
     private val letters = Constants.alph
     fun validate(input: String): String {
-        val alphabet = letters.uppercase()
-        return input.filter { it in alphabet }.uppercase()
+        val normalizedInput = input
+            .uppercase()
+            .replace("Ё", "Е")
+
+        return normalizedInput.filter { it in letters }
     }
 }

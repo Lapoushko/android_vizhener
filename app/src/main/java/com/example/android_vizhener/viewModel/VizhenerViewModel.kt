@@ -4,40 +4,33 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.android_vizhener.calculate.CreateSheet
 import com.example.android_vizhener.calculate.Decryptor
 import com.example.android_vizhener.calculate.Encryptor
-import com.example.android_vizhener.mapper.CryptMapper
-import com.example.android_vizhener.mapper.KeyMapper
-import com.example.android_vizhener.mapper.MessageMapper
 import com.example.android_vizhener.mapper.util.TextValidator
+import com.example.android_vizhener.model.Mappers
 import com.example.android_vizhener.state.Input
 import com.example.android_vizhener.state.MainScreenState
 
 /**
  * @author Lapoushko
  */
-class VizhenerViewModel : ViewModel() {
-
-    private val createSheet = CreateSheet()
-    private val keyMapper = KeyMapper()
-    private val messageMapper = MessageMapper()
-    private val cryptMapper = CryptMapper()
-    private val sheet = createSheet.create()
-    private val validator = TextValidator()
-
+class VizhenerViewModel(
+    private val validator: TextValidator,
+    private val mappers: Mappers,
+    sheet: Map<Char, List<Char>>,
+) : ViewModel() {
     private val errors: MutableSet<Errors> = Errors.entries.toMutableSet()
 
     private val encryptor: Encryptor = Encryptor(
         sheet = sheet,
-        keyMapper = keyMapper,
-        messageMapper = messageMapper
+        keyMapper = mappers.keyMapper,
+        messageMapper = mappers.messageMapper
     )
 
     private val decryptor: Decryptor = Decryptor(
         sheet = sheet,
-        messageMapper = messageMapper,
-        keyMapper = keyMapper
+        messageMapper = mappers.messageMapper,
+        keyMapper = mappers.keyMapper
     )
 
     private var _state = MutableMainScreenState()
@@ -62,14 +55,14 @@ class VizhenerViewModel : ViewModel() {
     fun encrypt() {
         if (errors.isEmpty()) {
             _state.cypher =
-                cryptMapper.invoke(encryptor.encrypt(message = state.message.text, key = state.key.text))
+                mappers.cryptMapper.invoke(encryptor.encrypt(message = state.message.text, key = state.key.text))
         }
     }
 
     fun decrypt() {
         if (errors.isEmpty()) {
             _state.cypher =
-                cryptMapper.invoke(decryptor.decrypt(crypt = state.message.text, key = state.key.text))
+                mappers.cryptMapper.invoke(decryptor.decrypt(crypt = state.message.text, key = state.key.text))
         }
     }
 

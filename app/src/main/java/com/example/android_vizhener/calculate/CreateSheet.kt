@@ -7,7 +7,7 @@ import com.example.android_vizhener.util.Constants
  */
 class CreateSheet {
     private val alph: List<Char> =
-        Constants.alph.uppercase().toList().sorted()
+        Constants.alph.toList()
 
     fun create(): Map<Char, List<Char>> {
         return HashMap<Char, List<Char>>().apply {
